@@ -8,9 +8,9 @@ public class JDBС {
 
     public static Connection connection = null;
     public static void connect() throws SQLException{
-        String url = "jdbc:mysql://127.0.0.1:3306/course_work_psp";
+        String url = "jdbc:mysql://127.0.0.1:3306/pspdb";
         String username = "root";
-        String password = "koval1008";
+        String password = "12345678";
         try {
             connection = DriverManager.getConnection(url, username, password);
             System.out.println("Успешное подключение к базе данных.");

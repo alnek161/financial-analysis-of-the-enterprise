@@ -1,16 +1,20 @@
 package com.example.courseproject.Controllers;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 import com.example.courseproject.User.Authorisotion;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 public class Reg {
 
@@ -34,6 +38,16 @@ public class Reg {
 
     @FXML
     private Button register;
+    @FXML
+    private Button sign;
+
+    @FXML
+    void sign(MouseEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/courseproject/logIn.fxml"));
+        Stage primaryStage = (Stage) sign.getScene().getWindow();
+        primaryStage.setScene(new Scene(loader.load(), 700, 400));
+        primaryStage.show();
+    }
 
 //    @FXML
 //    void register(MouseEvent event) {
@@ -74,6 +88,14 @@ public class Reg {
                 login.setText("");
                 password.setText("");
                 password2.setText("");
+            }
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/courseproject/logIn.fxml"));
+                Stage primaryStage = (Stage) sign.getScene().getWindow();
+                primaryStage.setScene(new Scene(loader.load(), 700, 400));
+                primaryStage.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
     }

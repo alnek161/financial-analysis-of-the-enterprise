@@ -52,7 +52,7 @@ public class Client extends Application implements RegistrationListener {
 
         instance = this;
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/courseproject/Reg.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/courseproject/FirstScreen.fxml"));
         primaryStage.setScene(new Scene(loader.load(), 700, 400));
         primaryStage.show();
 

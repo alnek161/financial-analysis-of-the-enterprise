@@ -6,19 +6,25 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
+<?import javafx.scene.control.PasswordField?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.courseproject.Controllers.LogIn">
    <children>
       <AnchorPane layoutX="116.0" layoutY="86.0" prefHeight="227.0" prefWidth="368.0" style="-fx-background-color: Silver;">
          <children>
             <TextField fx:id="login" layoutX="24.0" layoutY="71.0" prefHeight="26.0" prefWidth="194.0" />
-            <TextField fx:id="password" layoutX="24.0" layoutY="138.0" prefHeight="26.0" prefWidth="194.0" />
+            <PasswordField fx:id="password" layoutX="24.0" layoutY="138.0" prefHeight="26.0" prefWidth="194.0" />
             <Button fx:id="log" layoutX="160.0" layoutY="186.0" mnemonicParsing="false" onMouseClicked="#log" prefHeight="26.0" prefWidth="57.0" text="Войти" />
             <Text layoutX="24.0" layoutY="67.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Логин:" />
             <Text layoutX="24.0" layoutY="134.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Пароль:" />
             <Text layoutX="141.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Авторизация">
                <font>
                   <Font size="16.0" />
+               </font>
+            </Text>
+            <Button fx:id="reg" layoutX="7.0" layoutY="199.0" mnemonicParsing="false" onMouseClicked="#reg" prefHeight="4.0" prefWidth="106.0" text="Регистрация" />
+            <Text fx:id="uncorrectAuthorisation" fill="#ff0000b2" layoutX="237.0" layoutY="70.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-opacity: 0;" text="Неверный логин или пароль" wrappingWidth="257.13671875">
+               <font>
+                  <Font name="Segoe Print" size="12.0" />
                </font>
             </Text>
          </children>

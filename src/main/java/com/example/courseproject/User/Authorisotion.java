@@ -39,10 +39,10 @@ public class Authorisotion {
             userStatement.executeUpdate();
 
             ResultSet generatedKeys = userStatement.getGeneratedKeys();
-            int userId = 0;
+            int idUser = 0;
             if (generatedKeys.next()) {
-                userId = generatedKeys.getInt(1);
-                System.out.println("Новый пользователь зарегистрирован. user_id = " + userId);
+                idUser = generatedKeys.getInt(1);
+                System.out.println("Новый пользователь зарегистрирован. idUser = " + idUser);
             }
 
             userStatement.close();
@@ -75,20 +75,20 @@ public class Authorisotion {
         try {
             JDBС.connect();  // Установить соединение с базой данных
 
-            String query = "SELECT user_id, password, role FROM user WHERE login = ?"; // Добавить role в запрос
+            String query = "SELECT idUser, password, role FROM user WHERE name = ?"; // Добавить role в запрос
             PreparedStatement statement = JDBС.connection.prepareStatement(query);
             statement.setString(1, login);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                int userId = resultSet.getInt("user_id");
+                int idUser = resultSet.getInt("idUser");
                 String hashedPassword = resultSet.getString("password");
                 String role = resultSet.getString("role"); // Получить роль из результата
                 boolean isAuthenticated = BCrypt.checkpw(password, hashedPassword);
 
                 JDBС.close();
 
-                return new AuthResult(userId, isAuthenticated, role);
+                return new AuthResult(idUser, isAuthenticated, role);
             }
         } catch (SQLException e) {
             e.printStackTrace();
