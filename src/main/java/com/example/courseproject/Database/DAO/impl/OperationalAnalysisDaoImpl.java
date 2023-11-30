@@ -1,66 +1,56 @@
 package com.example.courseproject.Database.DAO.impl;
 import com.example.courseproject.Database.DAO.OperationalAnalysisDao;
+import com.example.courseproject.Database.entity.LiquidityRatio;
 import com.example.courseproject.Database.entity.OperationalAnalysis;
 import com.example.courseproject.Database.entity.Profitability;
+import com.example.courseproject.Database.sessionFacctory.SessionFactoryImpl;
+import com.example.courseproject.Database.utils.SessionUtils;
+import lombok.NoArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.util.List;
-
+@NoArgsConstructor
 public class OperationalAnalysisDaoImpl implements OperationalAnalysisDao {
 
-    private SessionFactory sessionFactory;
 
-    public OperationalAnalysisDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    @Override
+    public boolean addOperationalAnalysis(OperationalAnalysis operationalAnalysis) {
+        return SessionUtils.saveEntity(operationalAnalysis);
     }
 
     @Override
-    public void addOperationalAnalysis(OperationalAnalysis operationalAnalysis) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(operationalAnalysis);
-        transaction.commit();
-        session.close();
+    public boolean updateOperationalAnalysis(OperationalAnalysis operationalAnalysis) {
+        return SessionUtils.updateEntity(operationalAnalysis);
     }
 
     @Override
-    public void updateOperationalAnalysis(OperationalAnalysis operationalAnalysis) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(operationalAnalysis);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void deleteOperationalAnalysis(int operationalAnalysisId) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        OperationalAnalysis operationalAnalysis = session.get(OperationalAnalysis.class, operationalAnalysisId);
-        if (operationalAnalysis != null) {
-            session.delete(operationalAnalysis);
-        }
-        transaction.commit();
-        session.close();
+    public boolean deleteOperationalAnalysis(int operationalAnalysisId) {
+        return SessionUtils.deleteEntity(operationalAnalysisId, OperationalAnalysis.class);
     }
 
     @Override
     public OperationalAnalysis getOperationalAnalysisById(int operationalAnalysisId) {
-        Session session = sessionFactory.openSession();
-        OperationalAnalysis operationalAnalysis = session.get(OperationalAnalysis.class, operationalAnalysisId);
-        session.close();
-        return operationalAnalysis;
+        return SessionUtils.find(OperationalAnalysis.class, operationalAnalysisId, "idOperationalAnalysis");
     }
 
     public List<OperationalAnalysis> getOperationalAnalysisByAnnualDataId(int annualDataId) {
-        Session session = sessionFactory.openSession();
-        Query<OperationalAnalysis> query = session.createQuery("SELECT lr FROM OperationalAnalysis lr WHERE lr.annualData.idAnnualData = :annualDataId", OperationalAnalysis.class);
-        query.setParameter("annualDataId", annualDataId);
-        List<OperationalAnalysis> operationalAnalysis = query.list();
-        session.close();
-        return operationalAnalysis;
+        return SessionUtils.findList(OperationalAnalysis.class, annualDataId, "AnnualData_idAnnualData");
+    }
+    @Override
+    public OperationalAnalysis getOperationalAnalysisByYear(int year) {
+        try (Session session = SessionFactoryImpl.getSessionFactory().openSession()) {
+            String hql = "SELECT oa FROM OperationalAnalysis oa " +
+                    "JOIN oa.annualData ad " +
+                    "WHERE ad.year = :year";
+            Query<OperationalAnalysis> query = session.createQuery(hql, OperationalAnalysis.class);
+            query.setParameter("year", year);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

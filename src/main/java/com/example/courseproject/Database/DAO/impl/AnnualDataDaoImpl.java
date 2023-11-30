@@ -1,67 +1,43 @@
 package com.example.courseproject.Database.DAO.impl;
 import com.example.courseproject.Database.DAO.AnnualDataDao;
 import com.example.courseproject.Database.entity.AnnualData;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
+import com.example.courseproject.Database.entity.OperationalAnalysis;
+import com.example.courseproject.Database.utils.SessionUtils;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
-
+@NoArgsConstructor
 public class AnnualDataDaoImpl implements AnnualDataDao {
 
-    private SessionFactory sessionFactory;
 
-    public AnnualDataDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    @Override
+    public boolean addAnnualData(AnnualData annualData) {
+        return SessionUtils.saveEntity(annualData);
     }
 
     @Override
-    public void addAnnualData(AnnualData annualData) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(annualData);
-        transaction.commit();
-        session.close();
+    public boolean updateAnnualData(AnnualData annualData) {
+        return SessionUtils.updateEntity(annualData);
     }
 
     @Override
-    public void updateAnnualData(AnnualData annualData) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(annualData);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void deleteAnnualData(int annualDataId) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        AnnualData annualData = session.get(AnnualData.class, annualDataId);
-        if (annualData != null) {
-            session.delete(annualData);
-        }
-        transaction.commit();
-        session.close();
+    public boolean deleteAnnualData(int annualDataId) {
+        return SessionUtils.deleteEntity(annualDataId, AnnualData.class);
     }
 
     @Override
     public AnnualData getAnnualDataById(int annualDataId) {
-        Session session = sessionFactory.openSession();
-        AnnualData annualData = session.get(AnnualData.class, annualDataId);
-        session.close();
-        return annualData;
+        return SessionUtils.find(AnnualData.class, annualDataId, "idAnnualData");
+    }
+
+    @Override
+    public AnnualData getAnnualDataByYear(int year) {
+        return SessionUtils.find(AnnualData.class, year, "year");
     }
 
     @Override
     public List<AnnualData> getAnnualDataByCompanyId(int companyId) {
-        Session session = sessionFactory.openSession();
-        Query<AnnualData> query = session.createQuery("FROM AnnualData WHERE company.idCompany = :companyId", AnnualData.class);
-        query.setParameter("companyId", companyId);
-        List<AnnualData> annualDataList = query.list();
-        session.close();
-        return annualDataList;
+        return SessionUtils.findList(AnnualData.class, companyId, "idCompany");
     }
 }
 

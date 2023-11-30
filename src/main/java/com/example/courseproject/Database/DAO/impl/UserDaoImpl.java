@@ -2,75 +2,46 @@ package com.example.courseproject.Database.DAO.impl;
 
 import com.example.courseproject.Database.DAO.UserDao;
 import com.example.courseproject.Database.entity.User;
+import com.example.courseproject.Database.sessionFacctory.SessionFactoryImpl;
+import com.example.courseproject.Database.utils.SessionUtils;
+import lombok.NoArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.util.List;
-
+@NoArgsConstructor
 public class UserDaoImpl implements UserDao {
 
-    private SessionFactory sessionFactory;
 
-    public UserDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    @Override
+    public boolean addUser(User user) {
+        return SessionUtils.saveEntity(user);
     }
 
     @Override
-    public void addUser(User user) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(user);
-        transaction.commit();
-        session.close();
+    public boolean updateUser(User user) {
+        return SessionUtils.updateEntity(user);
     }
 
     @Override
-    public void updateUser(User user) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(user);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void deleteUser(int userId) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        User user = session.get(User.class, userId);
-        if (user != null) {
-            session.delete(user);
-        }
-        transaction.commit();
-        session.close();
+    public boolean deleteUser(int userId) {
+        return SessionUtils.deleteEntity(userId, User.class);
     }
 
     @Override
     public User getUserById(int userId) {
-        Session session = sessionFactory.openSession();
-        User user = session.get(User.class, userId);
-        session.close();
-        return user;
+        return SessionUtils.find(User.class, userId, "idUser");
     }
 
     @Override
     public User getUserByName(String userName) {
-        Session session = sessionFactory.openSession();
-        Query<User> query = session.createQuery("FROM User WHERE name = :name", User.class);
-        query.setParameter("name", userName);
-        User user = query.uniqueResult();
-        session.close();
-        return user;
+        return SessionUtils.find(User.class, userName, "name");
     }
 
     @Override
     public List<User> getAllUsers() {
-        Session session = sessionFactory.openSession();
-        Query<User> query = session.createQuery("FROM User", User.class);
-        List<User> userList = query.list();
-        session.close();
-        return userList;
+        return (List<User>) SessionFactoryImpl.getSessionFactory().openSession().createQuery("From User").list();
     }
 }

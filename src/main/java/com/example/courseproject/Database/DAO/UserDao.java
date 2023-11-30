@@ -5,11 +5,11 @@ import com.example.courseproject.Database.entity.User;
 import java.util.List;
 
 public interface UserDao {
-    void addUser(User user);
+    boolean addUser(User user);
 
-    void updateUser(User user);
+    boolean updateUser(User user);
 
-    void deleteUser(int userId);
+    boolean deleteUser(int userId);
 
     User getUserById(int userId);
 

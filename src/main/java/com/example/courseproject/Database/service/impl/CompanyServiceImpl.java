@@ -1,74 +1,101 @@
-package com.example.courseproject.Database.DAO.impl;
+package com.example.courseproject.Database.service.impl;
 
 import com.example.courseproject.Database.DAO.CompanyDao;
+import com.example.courseproject.Database.DAO.impl.CompanyDaoImpl;
 import com.example.courseproject.Database.entity.Company;
+import com.example.courseproject.Database.service.CompanyService;
+import lombok.NoArgsConstructor;
+import org.hibernate.HibernateError;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.util.List;
+@NoArgsConstructor
+public class CompanyServiceImpl implements CompanyService {
 
-public class CompanyDaoImpl implements CompanyDao {
+    CompanyDao companyDao = new CompanyDaoImpl();
 
-    private SessionFactory sessionFactory;
-
-    public CompanyDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
 
     @Override
-    public void addCompany(Company company) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(company);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void updateCompany(Company company) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(company);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void deleteCompany(int companyId) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        Company company = session.get(Company.class, companyId);
-        if (company != null) {
-            session.delete(company);
+    public boolean addCompany(Company company) {
+        boolean isAdded = false;
+        try {
+            companyDao.addCompany(company);
+            isAdded = true;
         }
-        transaction.commit();
-        session.close();
+        catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isAdded;
+    }
+
+    @Override
+    public boolean updateCompany(Company company) {
+        boolean isUpdated = false;
+        try {
+            if(companyDao.updateCompany(company)) {
+                isUpdated = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isUpdated;
+    }
+
+    @Override
+    public boolean deleteCompany(int companyId) {
+        boolean isDeleted = false;
+        try {
+            if(companyDao.deleteCompany(companyId)) {
+                isDeleted = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isDeleted;
     }
 
     @Override
     public Company getCompanyById(int companyId) {
-        Session session = sessionFactory.openSession();
-        Company company = session.get(Company.class, companyId);
-        session.close();
+        Company company = null;
+        try {
+            company = companyDao.getCompanyById(companyId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
         return company;
     }
+
+    @Override
+    public Company getCompanyByName(String name) {
+        Company company = null;
+        try {
+            company = companyDao.getCompanyByName(name);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return company;
+    }
+
     @Override
     public List<Company> getCompanyByIdUser(int userId) {
-        Session session = sessionFactory.openSession();
-        Query<Company> query = session.createQuery("FROM Company WHERE idUser = :userId", Company.class);
-        query.setParameter("userId", userId);
-        List<Company> companyList = query.list();
-        session.close();
-        return companyList;
+        List<Company> companies = null;
+        try {
+            companies = companyDao.getCompanyByIdUser(userId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return companies;
     }
     @Override
     public List<Company> getAllCompanies() {
-        Session session = sessionFactory.openSession();
-        Query<Company> query = session.createQuery("FROM Company", Company.class);
-        List<Company> companyList = query.list();
-        session.close();
-        return companyList;
+        List<Company> companies = null;
+        try {
+            companies = companyDao.getAllCompanies();
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return companies;
     }
 }

@@ -1,67 +1,53 @@
 package com.example.courseproject.Database.DAO.impl;
 import com.example.courseproject.Database.DAO.MarketIndicatorsDao;
-import com.example.courseproject.Database.entity.LiquidityRatio;
 import com.example.courseproject.Database.entity.MarketIndicators;
+import com.example.courseproject.Database.sessionFacctory.SessionFactoryImpl;
+import com.example.courseproject.Database.utils.SessionUtils;
+import lombok.NoArgsConstructor;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.util.List;
-
+@NoArgsConstructor
 public class MarketIndicatorsDaoImpl implements MarketIndicatorsDao {
 
-    private SessionFactory sessionFactory;
-
-    public MarketIndicatorsDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    @Override
+    public boolean addMarketIndicators(MarketIndicators marketIndicators) {
+        return SessionUtils.saveEntity(marketIndicators);
     }
 
     @Override
-    public void addMarketIndicators(MarketIndicators marketIndicators) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(marketIndicators);
-        transaction.commit();
-        session.close();
+    public boolean updateMarketIndicators(MarketIndicators marketIndicators) {
+        return SessionUtils.updateEntity(marketIndicators);
     }
 
     @Override
-    public void updateMarketIndicators(MarketIndicators marketIndicators) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(marketIndicators);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void deleteMarketIndicators(int marketIndicatorsId) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        MarketIndicators marketIndicators = session.get(MarketIndicators.class, marketIndicatorsId);
-        if (marketIndicators != null) {
-            session.delete(marketIndicators);
-        }
-        transaction.commit();
-        session.close();
+    public boolean deleteMarketIndicators(int marketIndicatorsId) {
+        return SessionUtils.deleteEntity(marketIndicatorsId, MarketIndicators.class);
     }
 
     @Override
     public MarketIndicators getMarketIndicatorsById(int marketIndicatorsId) {
-        Session session = sessionFactory.openSession();
-        MarketIndicators marketIndicators = session.get(MarketIndicators.class, marketIndicatorsId);
-        session.close();
-        return marketIndicators;
+        return SessionUtils.find(MarketIndicators.class, marketIndicatorsId, "idMarketIndicators");
     }
 
     @Override
     public List<MarketIndicators> getMarketIndicatorsByAnnualDataId(int annualDataId) {
-        Session session = sessionFactory.openSession();
-        Query<MarketIndicators> query = session.createQuery("SELECT lr FROM MarketIndicators lr WHERE lr.annualData.idAnnualData = :annualDataId", MarketIndicators.class);
-        query.setParameter("annualDataId", annualDataId);
-        List<MarketIndicators> marketIndicators = query.list();
-        session.close();
-        return marketIndicators;
+        return SessionUtils.findList(MarketIndicators.class, annualDataId, "AnnualData_idAnnualData");
+    }
+
+    @Override
+    public MarketIndicators getMarketIndicatorsByYear(int year) {
+        try (Session session = SessionFactoryImpl.getSessionFactory().openSession()) {
+            String hql = "SELECT mi FROM LiquidityRatio mi " +
+                    "JOIN mi.annualData ad " +
+                    "WHERE ad.year = :year";
+            Query<MarketIndicators> query = session.createQuery(hql, MarketIndicators.class);
+            query.setParameter("year", year);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

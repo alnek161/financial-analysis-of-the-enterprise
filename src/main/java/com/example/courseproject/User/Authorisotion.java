@@ -2,6 +2,9 @@ package com.example.courseproject.User;
 
 
 import com.example.courseproject.Database.JDBС;
+import com.example.courseproject.Database.entity.User;
+import com.example.courseproject.Database.service.UserService;
+import com.example.courseproject.Database.service.impl.UserServiceImpl;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,10 +14,12 @@ public class Authorisotion {
 
 
     public static void registerUser(String login, String password, String user) throws SQLException {
-        JDBС.connect();
 
-        try {
-
+            UserService userService = new UserServiceImpl();
+            if(userService != null){
+                System.out.println("Пользователь с логином '" + login + "' уже существует.");
+            }
+            User userObj = userService.getUserByName(login);
             String role;
             if (user.equals("user"))
             {
@@ -22,40 +27,11 @@ public class Authorisotion {
             }else{
                 role ="admin";
             }
-            // Проверка на существование пользователя с заданным логином
-            if (isUserExists(login)) {
-                System.out.println("Пользователь с логином '" + login + "' уже существует.");
-                return;
-            }
 
-            String userSql = "INSERT INTO `User` (`name`, `password`, `role`) VALUES (?, ?, ?)";
-//            String profileSql = "INSERT INTO profile (user_id, profile_name) VALUES (?, ?)";
+
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-            PreparedStatement userStatement = JDBС.connection.prepareStatement(userSql, PreparedStatement.RETURN_GENERATED_KEYS);
-            userStatement.setString(1, login);
-            userStatement.setString(2, hashedPassword);
-            userStatement.setString(3, role);
-
-            userStatement.executeUpdate();
-
-            ResultSet generatedKeys = userStatement.getGeneratedKeys();
-            int idUser = 0;
-            if (generatedKeys.next()) {
-                idUser = generatedKeys.getInt(1);
-                System.out.println("Новый пользователь зарегистрирован. idUser = " + idUser);
-            }
-
-            userStatement.close();
-
-//            PreparedStatement profileStatement = JDBС.connection.prepareStatement(profileSql);
-//            profileStatement.setInt(1, userId);
-//
-//            profileStatement.executeUpdate();
-//
-//            profileStatement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            User newUser = new User(login, hashedPassword, role);
+            userService.addUser(newUser);
 
         JDBС.close();
     }

@@ -6,9 +6,9 @@ module com.example.courseproject {
     requires org.controlsfx.controls;
     requires java.sql;
     requires lombok;
-    requires java.persistence;
+//    requires java.persistence;
+    requires jakarta.persistence;
     requires org.hibernate.orm.core;
-
     opens com.example.courseproject.Controllers to javafx.fxml;
     opens com.example.courseproject to javafx.fxml;
     exports com.example.courseproject;

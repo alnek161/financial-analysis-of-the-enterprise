@@ -1,7 +1,11 @@
-package com.example.courseproject.Database.DAO.impl;
+package com.example.courseproject.Database.service.impl;
 
 import com.example.courseproject.Database.DAO.UserDao;
+import com.example.courseproject.Database.DAO.impl.UserDaoImpl;
+import com.example.courseproject.Database.entity.Company;
 import com.example.courseproject.Database.entity.User;
+import com.example.courseproject.Database.service.UserService;
+import org.hibernate.HibernateError;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -9,68 +13,79 @@ import org.hibernate.query.Query;
 
 import java.util.List;
 
-public class UserDaoImpl implements UserDao {
+public class UserServiceImpl implements UserService {
 
-    private SessionFactory sessionFactory;
-
-    public UserDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    UserDao userDao = new UserDaoImpl();
 
     @Override
-    public void addUser(User user) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(user);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void updateUser(User user) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(user);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void deleteUser(int userId) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        User user = session.get(User.class, userId);
-        if (user != null) {
-            session.delete(user);
+    public boolean addUser(User user) {
+        boolean isAdded = false;
+        try {
+            userDao.addUser(user);
+            isAdded = true;
         }
-        transaction.commit();
-        session.close();
+        catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isAdded;
+    }
+
+    @Override
+    public boolean updateUser(User user) {
+        boolean isUpdated = false;
+        try {
+            if(userDao.updateUser(user)) {
+                isUpdated = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isUpdated;
+    }
+
+    @Override
+    public boolean deleteUser(int userId) {
+        boolean isDeleted = false;
+        try {
+            if(userDao.deleteUser(userId)) {
+                isDeleted = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isDeleted;
     }
 
     @Override
     public User getUserById(int userId) {
-        Session session = sessionFactory.openSession();
-        User user = session.get(User.class, userId);
-        session.close();
+        User user = null;
+        try {
+            user = userDao.getUserById(userId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
         return user;
     }
 
     @Override
-    public User getUserByName(String userName) {
-        Session session = sessionFactory.openSession();
-        Query<User> query = session.createQuery("FROM User WHERE name = :name", User.class);
-        query.setParameter("name", userName);
-        User user = query.uniqueResult();
-        session.close();
+    public User getUserByName(String userId) {
+        User user = null;
+        try {
+            user = userDao.getUserByName(userId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
         return user;
     }
 
     @Override
     public List<User> getAllUsers() {
-        Session session = sessionFactory.openSession();
-        Query<User> query = session.createQuery("FROM User", User.class);
-        List<User> userList = query.list();
-        session.close();
-        return userList;
+        List<User> users = null;
+        try {
+            users = userDao.getAllUsers();
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return users;
     }
 }

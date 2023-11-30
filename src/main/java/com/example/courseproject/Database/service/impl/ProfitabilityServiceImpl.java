@@ -1,7 +1,10 @@
-package com.example.courseproject.Database.DAO.impl;
+package com.example.courseproject.Database.service.impl;
 import com.example.courseproject.Database.DAO.ProfitabilityDao;
-import com.example.courseproject.Database.entity.MarketIndicators;
+import com.example.courseproject.Database.DAO.impl.ProfitabilityDaoImpl;
+import com.example.courseproject.Database.entity.Company;
 import com.example.courseproject.Database.entity.Profitability;
+import com.example.courseproject.Database.service.ProfitabilityService;
+import org.hibernate.HibernateError;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -9,58 +12,68 @@ import org.hibernate.query.Query;
 
 import java.util.List;
 
-public class ProfitabilityDaoImpl implements ProfitabilityDao {
+public class ProfitabilityServiceImpl implements ProfitabilityService {
 
-    private SessionFactory sessionFactory;
+    ProfitabilityDao profitabilityDao = new ProfitabilityDaoImpl();
 
-    public ProfitabilityDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
 
     @Override
-    public void addProfitability(Profitability profitability) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(profitability);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void updateProfitability(Profitability profitability) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(profitability);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void deleteProfitability(int profitabilityId) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        Profitability profitability = session.get(Profitability.class, profitabilityId);
-        if (profitability != null) {
-            session.delete(profitability);
+    public boolean addProfitability(Profitability profitability) {
+        boolean isAdded = false;
+        try {
+            profitabilityDao.addProfitability(profitability);
+            isAdded = true;
         }
-        transaction.commit();
-        session.close();
+        catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isAdded;
+    }
+
+    @Override
+    public boolean updateProfitability(Profitability profitability) {
+        boolean isUpdated = false;
+        try {
+            if(profitabilityDao.updateProfitability(profitability)) {
+                isUpdated = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isUpdated;
+    }
+
+    @Override
+    public boolean deleteProfitability(int profitabilityId) {
+        boolean isDeleted = false;
+        try {
+            if(profitabilityDao.deleteProfitability(profitabilityId)) {
+                isDeleted = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isDeleted;
     }
 
     @Override
     public Profitability getProfitabilityById(int profitabilityId) {
-        Session session = sessionFactory.openSession();
-        Profitability profitability = session.get(Profitability.class, profitabilityId);
-        session.close();
+        Profitability profitability = null;
+        try {
+            profitability = profitabilityDao.getProfitabilityById(profitabilityId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
         return profitability;
     }
 
     public List<Profitability> getProfitabilityByAnnualDataId(int annualDataId) {
-        Session session = sessionFactory.openSession();
-        Query<Profitability> query = session.createQuery("SELECT lr FROM Profitability lr WHERE lr.annualData.idAnnualData = :annualDataId", Profitability.class);
-        query.setParameter("annualDataId", annualDataId);
-        List<Profitability> profitability = query.list();
-        session.close();
-        return profitability;
+        List<Profitability> profitabilitys = null;
+        try {
+            profitabilitys = profitabilityDao.getProfitabilityByAnnualDataId(annualDataId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return profitabilitys;
     }
 }

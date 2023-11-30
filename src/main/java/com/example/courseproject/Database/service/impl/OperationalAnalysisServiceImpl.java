@@ -1,7 +1,10 @@
-package com.example.courseproject.Database.DAO.impl;
+package com.example.courseproject.Database.service.impl;
 import com.example.courseproject.Database.DAO.OperationalAnalysisDao;
+import com.example.courseproject.Database.DAO.impl.OperationalAnalysisDaoImpl;
+import com.example.courseproject.Database.entity.Company;
 import com.example.courseproject.Database.entity.OperationalAnalysis;
-import com.example.courseproject.Database.entity.Profitability;
+import com.example.courseproject.Database.service.OperationalAnalysisService;
+import org.hibernate.HibernateError;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -9,58 +12,67 @@ import org.hibernate.query.Query;
 
 import java.util.List;
 
-public class OperationalAnalysisDaoImpl implements OperationalAnalysisDao {
+public class OperationalAnalysisServiceImpl implements OperationalAnalysisService {
 
-    private SessionFactory sessionFactory;
-
-    public OperationalAnalysisDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    OperationalAnalysisDao operationalAnalysisDao = new OperationalAnalysisDaoImpl();
 
     @Override
-    public void addOperationalAnalysis(OperationalAnalysis operationalAnalysis) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(operationalAnalysis);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void updateOperationalAnalysis(OperationalAnalysis operationalAnalysis) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(operationalAnalysis);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void deleteOperationalAnalysis(int operationalAnalysisId) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        OperationalAnalysis operationalAnalysis = session.get(OperationalAnalysis.class, operationalAnalysisId);
-        if (operationalAnalysis != null) {
-            session.delete(operationalAnalysis);
+    public boolean addOperationalAnalysis(OperationalAnalysis operationalAnalysis) {
+        boolean isAdded = false;
+        try {
+            operationalAnalysisDao.addOperationalAnalysis(operationalAnalysis);
+            isAdded = true;
         }
-        transaction.commit();
-        session.close();
+        catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isAdded;
+    }
+
+    @Override
+    public boolean updateOperationalAnalysis(OperationalAnalysis operationalAnalysis) {
+        boolean isUpdated = false;
+        try {
+            if(operationalAnalysisDao.updateOperationalAnalysis(operationalAnalysis)) {
+                isUpdated = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isUpdated;
+    }
+
+    @Override
+    public boolean deleteOperationalAnalysis(int operationalAnalysisId) {
+        boolean isDeleted = false;
+        try {
+            if(operationalAnalysisDao.deleteOperationalAnalysis(operationalAnalysisId)) {
+                isDeleted = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isDeleted;
     }
 
     @Override
     public OperationalAnalysis getOperationalAnalysisById(int operationalAnalysisId) {
-        Session session = sessionFactory.openSession();
-        OperationalAnalysis operationalAnalysis = session.get(OperationalAnalysis.class, operationalAnalysisId);
-        session.close();
+        OperationalAnalysis operationalAnalysis = null;
+        try {
+            operationalAnalysis = operationalAnalysisDao.getOperationalAnalysisById(operationalAnalysisId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
         return operationalAnalysis;
     }
 
     public List<OperationalAnalysis> getOperationalAnalysisByAnnualDataId(int annualDataId) {
-        Session session = sessionFactory.openSession();
-        Query<OperationalAnalysis> query = session.createQuery("SELECT lr FROM OperationalAnalysis lr WHERE lr.annualData.idAnnualData = :annualDataId", OperationalAnalysis.class);
-        query.setParameter("annualDataId", annualDataId);
-        List<OperationalAnalysis> operationalAnalysis = query.list();
-        session.close();
+        List<OperationalAnalysis> operationalAnalysis = null;
+        try {
+            operationalAnalysis = operationalAnalysisDao.getOperationalAnalysisByAnnualDataId(annualDataId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
         return operationalAnalysis;
     }
 }

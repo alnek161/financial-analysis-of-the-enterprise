@@ -5,9 +5,10 @@ import com.example.courseproject.Database.entity.AnnualData;
 import java.util.List;
 
 public interface AnnualDataDao {
-    void addAnnualData(AnnualData annualData);
-    void updateAnnualData(AnnualData annualData);
-    void deleteAnnualData(int annualDataId);
+    boolean addAnnualData(AnnualData annualData);
+    boolean updateAnnualData(AnnualData annualData);
+    boolean deleteAnnualData(int annualDataId);
     AnnualData getAnnualDataById(int annualDataId);
+    AnnualData getAnnualDataByYear(int year);
     List<AnnualData> getAnnualDataByCompanyId(int companyId);
 }

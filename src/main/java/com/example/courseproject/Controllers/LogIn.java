@@ -70,9 +70,7 @@ public class LogIn {
                 }
 
 
-                // Пользователь аутентифицирован, выполняйте необходимые действия
             } else {
-                // Пользователь не найден, изменить прозрачность элемента uncorrectAuthorisation
                 uncorrectAuthorisation.setOpacity(1.0);
             }
         });

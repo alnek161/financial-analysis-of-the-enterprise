@@ -1,7 +1,10 @@
-package com.example.courseproject.Database.DAO.impl;
+package com.example.courseproject.Database.service.impl;
 import com.example.courseproject.Database.DAO.MarketIndicatorsDao;
-import com.example.courseproject.Database.entity.LiquidityRatio;
+import com.example.courseproject.Database.DAO.impl.MarketIndicatorsDaoImpl;
+import com.example.courseproject.Database.entity.Company;
 import com.example.courseproject.Database.entity.MarketIndicators;
+import com.example.courseproject.Database.service.MarketIndicatorsService;
+import org.hibernate.HibernateError;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -9,59 +12,69 @@ import org.hibernate.query.Query;
 
 import java.util.List;
 
-public class MarketIndicatorsDaoImpl implements MarketIndicatorsDao {
+public class MarketIndicatorsServiceImpl implements MarketIndicatorsService {
 
-    private SessionFactory sessionFactory;
+    MarketIndicatorsDao marketIndicatorsDao = new MarketIndicatorsDaoImpl();
 
-    public MarketIndicatorsDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
 
     @Override
-    public void addMarketIndicators(MarketIndicators marketIndicators) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(marketIndicators);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void updateMarketIndicators(MarketIndicators marketIndicators) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(marketIndicators);
-        transaction.commit();
-        session.close();
-    }
-
-    @Override
-    public void deleteMarketIndicators(int marketIndicatorsId) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        MarketIndicators marketIndicators = session.get(MarketIndicators.class, marketIndicatorsId);
-        if (marketIndicators != null) {
-            session.delete(marketIndicators);
+    public boolean addMarketIndicators(MarketIndicators marketIndicators) {
+        boolean isAdded = false;
+        try {
+            marketIndicatorsDao.addMarketIndicators(marketIndicators);
+            isAdded = true;
         }
-        transaction.commit();
-        session.close();
+        catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isAdded;
+    }
+
+    @Override
+    public boolean updateMarketIndicators(MarketIndicators marketIndicators) {
+        boolean isUpdated = false;
+        try {
+            if(marketIndicatorsDao.updateMarketIndicators(marketIndicators)) {
+                isUpdated = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isUpdated;
+    }
+
+    @Override
+    public boolean deleteMarketIndicators(int marketIndicatorsId) {
+        boolean isDeleted = false;
+        try {
+            if(marketIndicatorsDao.deleteMarketIndicators(marketIndicatorsId)) {
+                isDeleted = true;
+            }
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
+        return isDeleted;
     }
 
     @Override
     public MarketIndicators getMarketIndicatorsById(int marketIndicatorsId) {
-        Session session = sessionFactory.openSession();
-        MarketIndicators marketIndicators = session.get(MarketIndicators.class, marketIndicatorsId);
-        session.close();
+        MarketIndicators marketIndicators = null;
+        try {
+            marketIndicators = marketIndicatorsDao.getMarketIndicatorsById(marketIndicatorsId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
         return marketIndicators;
     }
 
     @Override
     public List<MarketIndicators> getMarketIndicatorsByAnnualDataId(int annualDataId) {
-        Session session = sessionFactory.openSession();
-        Query<MarketIndicators> query = session.createQuery("SELECT lr FROM MarketIndicators lr WHERE lr.annualData.idAnnualData = :annualDataId", MarketIndicators.class);
-        query.setParameter("annualDataId", annualDataId);
-        List<MarketIndicators> marketIndicators = query.list();
-        session.close();
+        List<MarketIndicators> marketIndicators = null;
+        try {
+            marketIndicators = marketIndicatorsDao.getMarketIndicatorsByAnnualDataId(annualDataId);
+        } catch (HibernateError e) {
+            throw new RuntimeException(e);
+        }
         return marketIndicators;
     }
 }

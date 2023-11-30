@@ -1,11 +1,14 @@
-package by.bsuir.carShop.utils;
+package com.example.courseproject.Database.utils;
 
-import by.bsuir.carShop.sessionFactory.SessionFactoryImpl;
+import com.example.courseproject.Database.sessionFacctory.SessionFactoryImpl;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SessionUtils {
     public static boolean saveEntity(Object entity) {
@@ -75,5 +78,24 @@ public class SessionUtils {
             System.out.println("Exception: " + e);
         }
         return entity;
+    }
+
+    public static <F, T> List<T> findList(Class<T> clazz, F criteriaField, String criteriaFieldName) {
+        List<T> entityList = new ArrayList<>();
+        try {
+            Session session = SessionFactoryImpl.getSessionFactory().openSession();
+            Transaction transaction = session.beginTransaction();
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+            CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(clazz);
+            Root<T> companyRoot = criteriaQuery.from(clazz);
+            criteriaQuery.select(companyRoot)
+                    .where(criteriaBuilder.equal(companyRoot.get(criteriaFieldName), criteriaField));
+            entityList = session.createQuery(criteriaQuery).getResultList();
+            transaction.commit();
+            session.close();
+        } catch (NoClassDefFoundError e) {
+            System.out.println("Exception: " + e);
+        }
+        return entityList;
     }
 }
