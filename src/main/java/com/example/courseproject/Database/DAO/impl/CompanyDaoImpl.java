@@ -44,7 +44,7 @@ public class CompanyDaoImpl implements CompanyDao {
     }
     @Override
     public List<Company> getAllCompanies() {
-        return (List<Company>) SessionFactoryImpl.getSessionFactory().openSession().createQuery("From Company").list();
+        return (List<Company>) SessionFactoryImpl.getSessionFactory().openSession().createQuery("From company").list();
     }
 
 }

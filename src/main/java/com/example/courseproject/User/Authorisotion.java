@@ -15,62 +15,41 @@ public class Authorisotion {
 
     public static void registerUser(String login, String password, String user) throws SQLException {
 
-            UserService userService = new UserServiceImpl();
-            if(userService != null){
-                System.out.println("Пользователь с логином '" + login + "' уже существует.");
-            }
-            User userObj = userService.getUserByName(login);
-            String role;
-            if (user.equals("user"))
-            {
-                role = "user";
-            }else{
-                role ="admin";
-            }
+        UserService userService = new UserServiceImpl();
 
-
-            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-            User newUser = new User(login, hashedPassword, role);
-            userService.addUser(newUser);
-
-        JDBС.close();
-    }
-
-    private static boolean isUserExists(String login) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM `User` WHERE `name` = ?";
-        PreparedStatement statement = JDBС.connection.prepareStatement(sql);
-        statement.setString(1, login);
-        ResultSet resultSet = statement.executeQuery();
-        if (resultSet.next()) {
-            int count = resultSet.getInt(1);
-            return count > 0;
+        User userObj = userService.getUserByName(login);
+        if(userObj != null){
+            System.out.println("Пользователь с логином '" + login + "' уже существует.");
         }
-        return false;
+        String role;
+        if (user.equals("user"))
+        {
+            role = "user";
+        }else{
+            role ="admin";
+        }
+
+
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        User newUser = new User(login, hashedPassword, role);
+        userService.addUser(newUser);
+        System.out.println("Пользователь с логином '" + login + "' добавлен.");
     }
+
+
     public static AuthResult authenticateUser(String login, String password) {
-        try {
-            JDBС.connect();  // Установить соединение с базой данных
+        UserService userService = new UserServiceImpl();
 
-            String query = "SELECT idUser, password, role FROM user WHERE name = ?"; // Добавить role в запрос
-            PreparedStatement statement = JDBС.connection.prepareStatement(query);
-            statement.setString(1, login);
-            ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                int idUser = resultSet.getInt("idUser");
-                String hashedPassword = resultSet.getString("password");
-                String role = resultSet.getString("role"); // Получить роль из результата
-                boolean isAuthenticated = BCrypt.checkpw(password, hashedPassword);
-
-                JDBС.close();
-
-                return new AuthResult(idUser, isAuthenticated, role);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        User userObj = userService.getUserByName(login);
+        if(userObj == null){
+            System.out.println("Пользователь с логином '" + login + "' не найден.");
+            return new AuthResult(-1, false, "user");
         }
-
-        return new AuthResult(-1, false, "user");
+        int idUser = userObj.getIdUser();
+        String role = userObj.getRole();
+        String hashedPassword = userObj.getPassword();
+        boolean isAuthenticated = BCrypt.checkpw(password, hashedPassword);
+        return new AuthResult(idUser, isAuthenticated, role);
     }
 
 }
